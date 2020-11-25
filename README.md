@@ -3,6 +3,12 @@ This is an abstraction for using [single table design] with [dynamodb].
 > Inspired by mythical person [Rick Houlihan](https://twitter.com/houlihan_rick)
 
 ## Getting Started
+```shell script
+yarn add ddb-orm
+# or
+npm --save install ddb-orm
+```
+
 We will follow [AWS Hands-on guide](https://aws.amazon.com/getting-started/hands-on/design-a-database-for-a-mobile-app-with-dynamodb/4/).
 
 | Entity     | HASH (PK)                  | RANGE (SK)                   |   |   |
@@ -60,19 +66,19 @@ await user.save();
 
 ## API Guide
 
-# Key
+### Key
 > TODO
 
-# TableFactory
+### TableFactory
 > TODO
 
-# Attribute
+### Attribute
 > TODO
 
-# Entity
+### Entity
 > TODO
 
-### Example
+## Example
 > TODO
 
 ---

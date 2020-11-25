@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { Attribute } from './Attribute';
 
 export interface KeyConstructor {
