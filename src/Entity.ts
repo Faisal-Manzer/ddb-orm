@@ -1,7 +1,7 @@
 import util from 'util';
 import { TableDefinition } from './Table';
 
-export abstract class Entity {
+export class Entity {
     static _table: TableDefinition;
 
     static _keyMapping: {
@@ -14,32 +14,43 @@ export abstract class Entity {
     };
 
     static _keyArray: { [key: string]: Array<string> };
-    static _attributes: Set<string> = new Set();
+    static _attributes: Set<string>;
 
-    static find() {}
+    constructor(attributes: Record<string, any> = {}) {
+        Object.assign(this, attributes);
+    }
 
-    static findOne() {}
-
-    static create() {}
-
-    get _() {
+    get __() {
         return <typeof Entity>this.constructor;
     }
 
-    save() {}
+    static create(attributes: Record<string, any>) {
+        const entity = new this();
+        Object.assign(entity, attributes);
+        return entity;
+    }
 
-    remove() {}
-
-    get attributes() {
-        const attrs: { [key: string]: any } = {};
-        // @ts-ignore
-        this._._attributes.forEach((attr: string) => (attrs[attr] = this[attr]));
+    static current(instance: Entity) {
+        const attrs: Record<string, any> = {};
+        this._attributes.forEach((attr: string) => {
+            // @ts-ignore
+            attrs[attr] = instance[attr];
+        });
 
         return attrs;
     }
 
+    async save() {
+        await this.__._table.dynamodb
+            .put({
+                TableName: this.__._table.name,
+                Item: this.__.current(this),
+            })
+            .promise();
+    }
+
     toString() {
-        return `${this._.name} ${JSON.stringify(this.attributes, undefined, 2)}`;
+        return `${this.__.name} ${JSON.stringify(this.__.current(this), undefined, 2)}`;
     }
 
     [util.inspect.custom](depth: any, opts: any) {
