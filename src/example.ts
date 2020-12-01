@@ -1,3 +1,5 @@
+console.time('Execution');
+
 import { Attribute, Key, TableFactory, Entity } from './index';
 import { randomName, UUID, snakeCase, toTitleCase } from './utils';
 
@@ -8,7 +10,7 @@ const GSK = Key({ key: 'GSK' });
 
 const Table = TableFactory({
     name: 'TestTable',
-    keys: [PK, SK, GSK, GPK],
+    keys: [PK, SK, GPK, GSK],
     useLocal: true,
 });
 
@@ -66,9 +68,10 @@ class GoogleLogin extends Entity {
 }
 
 const main = async function () {
-    // --
-    const user1 = new User({ name: randomName() });
-    await user1.save();
+    console.time('Main');
+
+    console.log(await User.findOne({ username: 'noxious_woodworkers_inveterate_rainbows' }));
+    console.timeEnd('Main');
 };
 
-main();
+main().then(() => console.timeEnd('Execution'));

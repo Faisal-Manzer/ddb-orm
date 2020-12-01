@@ -21,7 +21,7 @@ export function computeKeyValue(target: any, keyName: string) {
     const cons: typeof Entity = target.constructor;
 
     const variables = cons._keyArray[keyName];
-    const valueArray = [getPrefix(cons, keyName), ...variables.map((variable) => target[variable])];
+    const valueArray = [getPrefix(target, keyName), ...variables.map((variable) => target[variable])];
 
     // if any variable does not have value then discard
     if (valueArray.indexOf(undefined) < 0) target[keyName] = valueArray.join('#');

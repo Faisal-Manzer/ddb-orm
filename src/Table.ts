@@ -110,6 +110,20 @@ export function TableFactory(table: TableConstructor): TableFactory {
 
     function factory(target: typeof Entity) {
         target._table = base; // set static property table to given class
+
+        for (const key of table.keys) {
+            if (key.base.key in target._keyArray && key.base.sortKey && !(key.base.sortKey in target._keyArray)) {
+                const sortKey = table.keys.find(({ base }) => base.key === key.base.sortKey);
+                if (sortKey) {
+                    Object.keys(target._keyMapping[key.base.key]).map((variable) => {
+                        const config = target._keyMapping[key.base.key][variable];
+                        sortKey(config.prefix, config.priority)(target, variable);
+                    });
+                    target._attributes.add(key.base.sortKey);
+                }
+            }
+        }
+
         return target;
     }
 

@@ -3,15 +3,15 @@ import { getPrefix, computeKey } from './EntityUtils';
 
 export interface KeyConstructor {
     key: string;
-    sortKey?: string;
-    index?: string;
-    isPrimaryIndex?: boolean;
+    sortKey: string;
+    index: string;
+    isPrimaryIndex: boolean;
 
-    projection?: 'ALL' | 'KEYS_ONLY' | 'INCLUDE';
-    attributes?: Array<string>;
+    projection: 'ALL' | 'KEYS_ONLY' | 'INCLUDE';
+    attributes: Array<string>;
 
-    rcu?: number;
-    wrc?: number;
+    rcu: number;
+    wrc: number;
 }
 
 export type PropertyDecorator = (target: any, key: string | symbol) => void;
@@ -36,7 +36,8 @@ export function Attribute(): PropertyDecorator {
     return Decorator;
 }
 
-export function Key(key: KeyConstructor): KeyDecoratorFactory {
+export function Key(key: Partial<KeyConstructor>): KeyDecoratorFactory {
+    // @ts-ignore
     const base: KeyConstructor = {
         isPrimaryIndex: false,
         rcu: 3,
@@ -53,7 +54,8 @@ export function Key(key: KeyConstructor): KeyDecoratorFactory {
             Attribute()(target, variableName); // making the variable as an attribute
 
             const variable = variableName.toString(); // if symbol then use it's string values
-            const cons: typeof Entity = target.constructor; // just for sort name and type safety
+
+            const cons: typeof Entity = typeof target === 'object' ? target.constructor : target; // just for sort name and type safety
 
             // Adding variable to keyMapping
             if (!cons._keyMapping) cons._keyMapping = {}; // checking if _keyMapping is initialized
@@ -91,13 +93,17 @@ export function Key(key: KeyConstructor): KeyDecoratorFactory {
 
             const computeValueFromKey = () => {
                 const prefix = getPrefix(target, key);
-                const valueArray = keyValue.replace(`${prefix}#`, '').split('#');
-                const index = cons._keyArray[key].indexOf(variable);
-                variableValue = valueArray[index];
-                if (variableValue !== target[variable]) {
-                    target[variable] = variableValue;
+                if (keyValue) {
+                    const valueArray = keyValue.replace(`${prefix}#`, '').split('#');
+                    const index = cons._keyArray[key].indexOf(variable);
+                    variableValue = valueArray[index];
+                    if (variableValue !== target[variable]) {
+                        target[variable] = variableValue;
+                    }
+                    return valueArray[index];
                 }
-                return valueArray[index];
+
+                return undefined;
             };
 
             Object.defineProperties(target, {

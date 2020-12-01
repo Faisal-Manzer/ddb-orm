@@ -1,6 +1,6 @@
 # Dynamodb Single Table ORM
 This is an abstraction for using [single table design] with [dynamodb].
-> Inspired by mythical person [Rick Houlihan](https://twitter.com/houlihan_rick)
+> Inspired by mythical [Rick Houlihan](https://twitter.com/houlihan_rick)
 
 ## Getting Started
 ```shell script
@@ -8,16 +8,6 @@ yarn add ddb-orm
 # or
 npm --save install ddb-orm
 ```
-
-We will follow [AWS Hands-on guide](https://aws.amazon.com/getting-started/hands-on/design-a-database-for-a-mobile-app-with-dynamodb/4/).
-
-| Entity     | HASH (PK)                  | RANGE (SK)                   |   |   |
-|------------|----------------------------|------------------------------|---|---|
-| User       | USER#<USERNAME>            | #METADATA#<USERNAME>         |   |   |
-| Photo      | USER#<USERNAME>            | PHOTO#<USERNAME>#<TIMESTAMP> |   |   |
-| Reaction   | REACTION#<USERNAME>#<TYPE> | PHOTO#<USERNAME>#<TIMESTAMP> |   |   |
-| Friendship | USER#<USERNAME>            | #FRIEND#<FRIEND_USERNAME>    |   |   |
-
 
 #### Declare keys used in table
 ```typescript
@@ -33,7 +23,7 @@ import { TableFactory } from 'ddb-orm'
 
 const Table = TableFactory({
     name: 'SocialTable',
-    keys: [PK, SK, GSK, GPK],
+    keys: [PK, SK],
     useLocal: true,  // using locally running dynamodb
 });
 ```
@@ -64,16 +54,48 @@ const user = new User({ username: 'test_user', name: 'Test User' });
 await user.save();
 ```
 
+### Find Particular user
+```typescript
+const user = await User.findOne({ username: 'test_user' });
+console.log(user);
+
+/*
+    User { 
+        "username": "test_user",
+        "name": "Test User",
+        "PK": "USER#test_user",
+        "SK": "#METADATA#test_user"
+    }
+*/
+```
+
 ## API Guide
 
 ### Key
-> TODO
+| Option         | Description                                                                                                                      | Type                                        | Required | Default       |
+|----------------|----------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------|----------|---------------|
+| name           | Key name for table.                                                                                                              | `string`                                    | YES      |               |
+| sortKey        | Sort key for the particular index.                                                                                               | `string`                                    | NO       |               |
+| index          | Index key (and sort-key) if there is any. This will create a Global Secondary index for quering. Not required for primary index. | `string`                                    | NO       |               |
+| isPrimaryIndex | Specify primary index for the table.                                                                                             | `Boolean`                                   | NO       | `false`       |
+| projection     | Projection type of index.                                                                                                        | `string`(`ALL` \| `KEYS_ONLY` \| `INCLUDE`) | NO       | `ALL`         |
+| attributes     | Only required for projection type `INCLUDE`.                                                                                     | `Array<string>`                             | NO       | `[]`          |
+| rcu            | Read capacity units for Index.                                                                                                   | `number`                                    | NO       | `3`           |
+| wcu            | Write capacity of the Index.                                                                                                     | `number`                                    | NO       | `3`           |
+
 
 ### TableFactory
-> TODO
+| Option   | Description                                                                                                                  | Type       | Required | Default      |
+|----------|------------------------------------------------------------------------------------------------------------------------------|------------|----------|--------------|
+| name     | Name of the table used.                                                                                                      | string     | YES      |              |
+| keys     | Arrays of Key. (at-least primary key is required)                                                                            | Array<Key> | YES      |              |
+| region   | AWS region to be used for table.                                                                                             | string     | NO       | `ap-south-1` |
+| endpoint | AWS dyanamodb endpoint. (`http://localhost:8000` for local and for production `https://dyanmodb.<aws-region>.amazonaws.com`) | string     | NO       |              |
+| useLocal | Use local dyanmodb instead of cloud. (You need to run dyanamodb locally first)                                               | boolean    | NO       |              |
+
 
 ### Attribute
-> TODO
+Marks any property as attribute.
 
 ### Entity
 > TODO
