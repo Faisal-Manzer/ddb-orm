@@ -2,6 +2,9 @@
 This is an abstraction for using [single table design] with [dynamodb].
 > Inspired by mythical [Rick Houlihan](https://twitter.com/houlihan_rick)
 
+# THIS IS NOT READY YET: [DON'T USE THIS]()
+This is an alpha software and is currently in active development. Documentations and API are to be done.
+
 ## Getting Started
 ```shell script
 yarn add ddb-orm
@@ -33,7 +36,7 @@ const Table = TableFactory({
 await Table.create();
 ```
 
-#### Define our entities
+#### Define your entities
 ```typescript
 import { Entity, Attribute } from 'ddb-orm'
 
@@ -54,9 +57,26 @@ const user = new User({ username: 'test_user', name: 'Test User' });
 await user.save();
 ```
 
+### Find Multiple users
+```typescript
+const users = await User.find({ where: { username: 'test_user' } });
+console.log(users);
+
+/*
+    [
+        User { 
+                "username": "test_user",
+                "name": "Test User",
+                "PK": "USER#test_user",
+                "SK": "#METADATA#test_user"
+        }
+    ]
+*/
+```
+
 ### Find Particular user
 ```typescript
-const user = await User.findOne({ username: 'test_user' });
+const user = await User.find({ username: 'test_user' });
 console.log(user);
 
 /*

@@ -20,7 +20,7 @@ export interface TableDefinition extends TableConstructor {
 interface TableFactory {
     (target: any): void;
 
-    create: () => void;
+    create: () => Promise<void>;
     delete: () => void;
 }
 

@@ -1,7 +1,7 @@
 {
   "name": "ddb-orm",
-  "version": "1.0.3-alpha",
-  "repository": "https://github.com/Faisleal-Manzer/ddb-orm.git",
+  "version": "1.0.6-alpha",
+  "repository": "https://github.com/Faisal-Manzer/ddb-orm.git",
   "license": "MIT",
   "author": "Faisal Manzer",
   "main": "dist/index.js",

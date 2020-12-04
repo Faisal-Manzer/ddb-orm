@@ -17,6 +17,12 @@ interface KeyArray {
 
 type Attributes = Record<string, any>;
 
+interface Find {
+    where: Attributes;
+    limit?: number;
+    count?: boolean;
+}
+
 export abstract class Entity {
     static _table: TableDefinition;
     static _keyMapping: KeyMapping;
@@ -110,37 +116,45 @@ export abstract class Entity {
      * If any index is not found raise error
      * Also for indexes with projected value other than ALL query again.
      */
-    static async findOne(where: Attributes): Promise<Entity | null> {
+    static async find({ where, count, limit }: Find): Promise<Entity[] | number> {
         const entity = this.create(where);
         const keyVariable = this.current(entity);
 
+        // @todo Implement reselection
         const { keys = undefined, index = undefined, reselection = false } = this.getPreferredKey(keyVariable);
-        console.log({ keys, index, reselection });
 
-        if (keys) {
-            const query = {
-                TableName: this._table.name,
-                IndexName: index,
-                KeyConditionExpression: keys.map((key) => `${key} = :x${key.toLowerCase()}`).join(' AND '),
-                ExpressionAttributeValues: keys.reduce(
-                    (o, key) =>
-                        Object.assign(o, {
-                            [`:x${key.toLowerCase()}`]: keyVariable[key],
-                        }),
-                    {},
-                ),
-                Limit: 2,
-            };
+        // This will change in later versions
+        // We will do scan instead of error
+        if (!keys) throw new Error('No key got for query.');
+        const query = {
+            TableName: this._table.name,
+            IndexName: index,
+            KeyConditionExpression: keys.map((key) => `${key} = :x${key.toLowerCase()}`).join(' AND '),
+            ExpressionAttributeValues: keys.reduce(
+                (o, key) =>
+                    Object.assign(o, {
+                        [`:x${key.toLowerCase()}`]: keyVariable[key],
+                    }),
+                {},
+            ),
+            ...(limit ? { Limit: limit } : {}),
+            ...(count ? { Select: 'COUNT' } : {}),
+        };
 
-            console.time('Query');
-            const { Items = [] } = await this._table.dynamodb.query(query).promise();
-            console.timeEnd('Query');
+        console.time('Query');
 
-            if (Items.length > 1) throw new Error('Multiple items found');
-            if (Items.length === 1) return Object.assign(entity, Items[0]);
-        }
+        const { Items = [], Count } = await this._table.dynamodb.query(query).promise();
+        if (count) return Count || 0;
+        console.timeEnd('Query');
 
-        return null;
+        return Items.map((item) => this.create(item));
+    }
+
+    static async findOne(attributes: Attributes) {
+        const instances = (await this.find({ where: attributes, limit: 2 })) as Entity[];
+        if (instances.length === 1) return instances[0];
+        if (instances.length === 0) return null;
+        throw new Error('Multiple objects found');
     }
 
     toString() {

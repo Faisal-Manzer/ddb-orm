@@ -1,22 +1,36 @@
 {
-  "parser":"@typescript-eslint/parser",
-  "parserOptions":{"ecmaFeatures":{"modules":true},"ecmaVersion":2020,"sourceType":"module"},
-  "extends":[
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "modules": true
+    },
+    "ecmaVersion": 2020,
+    "sourceType": "module"
+  },
+  "extends": [
     "plugin:@typescript-eslint/recommended",
     "prettier/@typescript-eslint",
     "plugin:prettier/recommended"
   ],
-  "rules":{
-    "@typescript-eslint/no-explicit-any":"off",
-    "no-unused-vars":"off",
-    "@typescript-eslint/no-unused-vars":["off"],
-    "@typescript-eslint/interface-name-prefix":"off",
-    "@typescript-eslint/ban-ts-ignore":"off",
-    "@typescript-eslint/no-empty-function":"warn",
-    "@typescript-eslint/no-var-requires":"off",
-    "@typescript-eslint/ban-ts-comment":"off",
-    "@typescript-eslint/explicit-module-boundary-types":"off",
-    "object-curly-spacing":["warn","always"],
-    "quotes":["error","single"]
+  "rules": {
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "off"
+    ],
+    "@typescript-eslint/interface-name-prefix": "off",
+    "@typescript-eslint/ban-ts-ignore": "off",
+    "@typescript-eslint/no-empty-function": "warn",
+    "@typescript-eslint/no-var-requires": "off",
+    "@typescript-eslint/ban-ts-comment": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "object-curly-spacing": [
+      "warn",
+      "always"
+    ],
+    "quotes": [
+      "error",
+      "single"
+    ]
   }
 }
